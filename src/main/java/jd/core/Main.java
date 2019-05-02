@@ -4,6 +4,7 @@ import jd.ide.intellij.config.JDPluginComponent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.*;
 
 public class Main {
 
@@ -37,8 +38,29 @@ public class Main {
 
             String outPath = paths.size() > 1 ? paths.get(1) : null;
 
-            int numDecompiled = new Decompiler().decompile(jarPath, outPath);
-            System.err.println("Decompiled " + numDecompiled + " classes");
+            File folder = new File(jarPath);
+            if(folder.isFile()) {
+                int numDecompiled = new Decompiler().decompile(jarPath, outPath);
+                System.err.println("Decompiled " + numDecompiled + " classes");
+            }
+            else {
+                File[] listOfFiles = folder.listFiles();
+                for (int i = 0; i < listOfFiles.length; i++) {
+                    try {
+                        if (listOfFiles[i].isFile()) {
+                            int numDecompiled = new Decompiler().decompile(listOfFiles[i].getPath(), outPath);
+                            System.out.println("File " + listOfFiles[i].getPath());
+                            System.out.println(" - Directory " + outPath);
+                        } else if (listOfFiles[i].isDirectory()) {
+                            System.out.println("Directory " + listOfFiles[i].getName());
+                        }
+                    }
+                    catch(Exception ex) {
+                        System.out.println("File " + listOfFiles[i].getPath());
+                    }
+                }
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
